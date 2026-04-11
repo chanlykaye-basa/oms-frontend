@@ -10,7 +10,7 @@ $ARGUMENTS
 
 ### 1. 컨벤션 로딩
 
-`docs/commit-convention-frontend.md`를 읽고 컨벤션을 파악합니다.
+`docs/commit-convention.md`를 읽고 컨벤션을 파악합니다.
 
 ### 2. 변경사항 분석
 

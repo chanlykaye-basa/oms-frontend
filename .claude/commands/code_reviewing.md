@@ -8,6 +8,10 @@ $ARGUMENTS
 
 (비어있으면 `git diff --name-only`로 변경 파일 대상)
 
+## 컨벤션 참조
+
+반드시 `docs/coding-convention.md`를 읽고 컨벤션 기준으로 리뷰합니다.
+
 ## 체크리스트
 
 ### Next.js 아키텍처

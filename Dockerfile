@@ -7,6 +7,15 @@ COPY packages/design-system /app/packages/design-system
 COPY oms/frontend/package*.json ./
 RUN npm install
 
+# ---- Development stage ----
+FROM node:20-alpine AS dev
+WORKDIR /app/oms/frontend
+COPY packages/design-system /app/packages/design-system
+COPY --from=deps /app/oms/frontend/node_modules ./node_modules
+COPY oms/frontend .
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]
+
 # ---- Build stage ----
 FROM node:20-alpine AS builder
 WORKDIR /app/oms/frontend

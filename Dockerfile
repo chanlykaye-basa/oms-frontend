@@ -1,14 +1,18 @@
+# Build context: repo root (docker-compose sets context: .)
+
 # ---- Dependencies stage ----
 FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+WORKDIR /app/oms/frontend
+COPY packages/design-system /app/packages/design-system
+COPY oms/frontend/package*.json ./
+RUN npm install
 
 # ---- Build stage ----
 FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+WORKDIR /app/oms/frontend
+COPY packages/design-system /app/packages/design-system
+COPY --from=deps /app/oms/frontend/node_modules ./node_modules
+COPY oms/frontend .
 RUN npm run build
 
 # ---- Runtime stage (Next.js standalone) ----
@@ -20,9 +24,9 @@ ENV NODE_ENV=production
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
 USER nextjs
 
-COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nextjs /app/public ./public
+COPY --from=builder --chown=nextjs:nextjs /app/oms/frontend/.next/standalone ./
+COPY --from=builder --chown=nextjs:nextjs /app/oms/frontend/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nextjs /app/oms/frontend/public ./public
 
 EXPOSE 3000
 ENV PORT=3000 HOSTNAME=0.0.0.0

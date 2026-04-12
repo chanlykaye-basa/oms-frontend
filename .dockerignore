@@ -1,0 +1,9 @@
+node_modules/
+.next/
+docs/
+**/*.md
+.git/
+.gitignore
+*.test.*
+*.spec.*
+playwright-report/

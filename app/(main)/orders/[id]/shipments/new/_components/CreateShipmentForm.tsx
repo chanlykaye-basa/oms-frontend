@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import type { OrderItem } from '@/shared/types/api'
 import { createShipmentAction } from '../_actions/createShipment'
+import { Button, Card, Input } from '@internal/design-system'
 
 interface CreateShipmentFormProps {
   orderId: string
@@ -59,70 +60,109 @@ export function CreateShipmentForm({ orderId, orderItems }: CreateShipmentFormPr
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {error && (
-        <p role="alert" style={{ color: 'red', fontSize: '14px' }}>
+        <p
+          role="alert"
+          style={{
+            color: '#F04452',
+            fontSize: '14px',
+            padding: '10px 14px',
+            background: '#FEF2F2',
+            borderRadius: '8px',
+          }}
+        >
           {error}
         </p>
       )}
 
-      <div>
-        <label htmlFor="carrierCode" style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-          배송사 <span style={{ color: 'red' }}>*</span>
-        </label>
-        <select
-          id="carrierCode"
-          name="carrierCode"
-          required
-          style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', width: '200px' }}
-        >
-          <option value="">배송사 선택</option>
-          {CARRIER_OPTIONS.map(carrier => (
-            <option key={carrier.code} value={carrier.code}>
-              {carrier.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Card
+        header={
+          <span style={{ fontSize: '15px', fontWeight: 600, color: '#191F28' }}>배송사 정보</span>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label
+              htmlFor="carrierCode"
+              style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 500, color: '#4E5968' }}
+            >
+              배송사 <span style={{ color: '#F04452' }}>*</span>
+            </label>
+            <select
+              id="carrierCode"
+              name="carrierCode"
+              required
+              style={{
+                padding: '10px 12px',
+                border: '1px solid #E5E8EB',
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: '#191F28',
+                background: '#FFFFFF',
+                outline: 'none',
+                width: '220px',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="">배송사 선택</option>
+              {CARRIER_OPTIONS.map(carrier => (
+                <option key={carrier.code} value={carrier.code}>
+                  {carrier.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div>
-        <label htmlFor="trackingNumber" style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-          송장번호 <span style={{ color: 'red' }}>*</span>
-        </label>
-        <input
-          id="trackingNumber"
-          name="trackingNumber"
-          type="text"
-          required
-          placeholder="송장번호를 입력하세요"
-          style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', width: '300px' }}
-        />
-      </div>
+          <Input
+            label="송장번호"
+            name="trackingNumber"
+            type="text"
+            required
+            placeholder="송장번호를 입력하세요"
+            style={{ maxWidth: '320px' }}
+          />
+        </div>
+      </Card>
 
-      <div>
-        <h3 style={{ marginBottom: '12px' }}>배송 상품 선택 <span style={{ color: 'red' }}>*</span></h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <Card
+        header={
+          <span style={{ fontSize: '15px', fontWeight: 600, color: '#191F28' }}>
+            배송 상품 선택 <span style={{ color: '#F04452' }}>*</span>
+          </span>
+        }
+      >
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
           <thead>
-            <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left' }}>
-              <th style={{ padding: '8px', width: '40px' }}>선택</th>
-              <th style={{ padding: '8px' }}>상품명</th>
-              <th style={{ padding: '8px' }}>주문수량</th>
-              <th style={{ padding: '8px' }}>배송수량</th>
+            <tr style={{ borderBottom: '1px solid #E5E8EB' }}>
+              <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600, color: '#4E5968', width: '40px' }}>
+                선택
+              </th>
+              <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: 600, color: '#4E5968' }}>상품명</th>
+              <th style={{ padding: '8px 0', textAlign: 'right', fontWeight: 600, color: '#4E5968', width: '80px' }}>
+                주문수량
+              </th>
+              <th style={{ padding: '8px 0', textAlign: 'right', fontWeight: 600, color: '#4E5968', width: '100px' }}>
+                배송수량
+              </th>
             </tr>
           </thead>
           <tbody>
             {orderItems.map(item => {
               const isSelected = item.id in selectedItems
               return (
-                <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '8px' }}>
+                <tr key={item.id} style={{ borderBottom: '1px solid #F2F4F6' }}>
+                  <td style={{ padding: '12px 0' }}>
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={e => handleItemToggle(item.id, item.quantity, e.target.checked)}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                     />
                   </td>
-                  <td style={{ padding: '8px' }}>{item.productName}</td>
-                  <td style={{ padding: '8px' }}>{item.quantity}</td>
-                  <td style={{ padding: '8px' }}>
+                  <td style={{ padding: '12px 0', color: '#191F28' }}>{item.productName}</td>
+                  <td style={{ padding: '12px 0', textAlign: 'right', color: '#4E5968' }}>
+                    {item.quantity}
+                  </td>
+                  <td style={{ padding: '12px 0', textAlign: 'right' }}>
                     {isSelected ? (
                       <input
                         type="number"
@@ -130,10 +170,18 @@ export function CreateShipmentForm({ orderId, orderItems }: CreateShipmentFormPr
                         max={item.quantity}
                         value={selectedItems[item.id] ?? item.quantity}
                         onChange={e => handleQtyChange(item.id, Number(e.target.value))}
-                        style={{ width: '80px', padding: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+                        style={{
+                          width: '80px',
+                          padding: '6px 8px',
+                          border: '1px solid #E5E8EB',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          textAlign: 'right',
+                          outline: 'none',
+                        }}
                       />
                     ) : (
-                      '-'
+                      <span style={{ color: '#C8D0DA' }}>-</span>
                     )}
                   </td>
                 </tr>
@@ -141,16 +189,17 @@ export function CreateShipmentForm({ orderId, orderItems }: CreateShipmentFormPr
             })}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       <div style={{ display: 'flex', gap: '8px' }}>
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={isPending}
-          style={{ padding: '10px 20px', backgroundColor: '#198754', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          loading={isPending}
         >
-          {isPending ? '등록 중...' : '송장 등록'}
-        </button>
+          송장 등록
+        </Button>
       </div>
     </form>
   )

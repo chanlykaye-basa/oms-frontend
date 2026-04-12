@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { api, ApiError } from '@/shared/lib/api'
 import type { Order } from '@/shared/types/api'
 import { CreateShipmentForm } from './_components/CreateShipmentForm'
+import { PageHeader, Card, Button } from '@internal/design-system'
 
 async function getOrder(id: string): Promise<Order> {
   try {
@@ -23,24 +24,41 @@ export default async function NewShipmentPage({ params }: { params: { id: string
 
   return (
     <div style={{ maxWidth: '720px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1>송장 등록</h1>
-        <Link href={`/orders/${order.id}`}>
-          <button style={{ padding: '6px 12px' }}>주문 상세로</button>
-        </Link>
-      </div>
+      <PageHeader
+        title="송장 등록"
+        description="배송 정보를 입력하여 송장을 등록합니다"
+        actions={
+          <Link href={`/orders/${order.id}`}>
+            <Button variant="secondary" size="sm">주문 상세로</Button>
+          </Link>
+        }
+      />
 
-      <section style={{ marginBottom: '24px', padding: '16px', border: '1px solid #eee', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
-        <h2 style={{ marginBottom: '8px', fontSize: '16px' }}>주문 정보</h2>
-        <div style={{ display: 'flex', gap: '24px', fontSize: '14px' }}>
-          <span><strong>주문번호:</strong> {order.orderNumber}</span>
-          <span><strong>주문자:</strong> {order.ordererName}</span>
-          <span><strong>수령인:</strong> {order.recipientName}</span>
+      <Card
+        header={
+          <span style={{ fontSize: '15px', fontWeight: 600, color: '#191F28' }}>주문 정보</span>
+        }
+        style={{ marginBottom: '20px' }}
+      >
+        <div style={{ display: 'flex', gap: '32px', fontSize: '14px', flexWrap: 'wrap' }}>
+          <div>
+            <span style={{ color: '#8B95A1', marginRight: '6px' }}>주문번호</span>
+            <strong style={{ color: '#191F28' }}>{order.orderNumber}</strong>
+          </div>
+          <div>
+            <span style={{ color: '#8B95A1', marginRight: '6px' }}>주문자</span>
+            <strong style={{ color: '#191F28' }}>{order.ordererName}</strong>
+          </div>
+          <div>
+            <span style={{ color: '#8B95A1', marginRight: '6px' }}>수령인</span>
+            <strong style={{ color: '#191F28' }}>{order.recipientName}</strong>
+          </div>
         </div>
-        <div style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>
-          배송지: {order.recipientAddress.zipCode} {order.recipientAddress.address1} {order.recipientAddress.address2 ?? ''}
+        <div style={{ marginTop: '10px', fontSize: '13px', color: '#8B95A1' }}>
+          배송지: {order.recipientAddress.zipCode} {order.recipientAddress.address1}{' '}
+          {order.recipientAddress.address2 ?? ''}
         </div>
-      </section>
+      </Card>
 
       <CreateShipmentForm orderId={order.id} orderItems={order.items} />
     </div>

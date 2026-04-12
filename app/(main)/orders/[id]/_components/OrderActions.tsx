@@ -4,6 +4,7 @@ import { useTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { OrderStatus } from '@/shared/types/api'
 import { ALLOWED_ACTIONS } from '@/shared/types/api'
+import { Button, Card } from '@internal/design-system'
 import {
   confirmOrderAction,
   rejectOrderAction,
@@ -72,69 +73,89 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
   return (
     <div style={{ marginTop: '24px' }}>
       {error && (
-        <p role="alert" style={{ color: 'red', marginBottom: '12px', fontSize: '14px' }}>
+        <p
+          role="alert"
+          style={{
+            color: '#F04452',
+            marginBottom: '12px',
+            fontSize: '14px',
+            padding: '10px 14px',
+            background: '#FEF2F2',
+            borderRadius: '8px',
+          }}
+        >
           {error}
         </p>
       )}
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         {allowedActions.includes('confirm') && (
-          <button
+          <Button
+            variant="primary"
             onClick={handleConfirm}
             disabled={isPending}
-            style={{ padding: '8px 16px', backgroundColor: '#0d6efd', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            loading={isPending}
           >
-            {isPending ? '처리 중...' : '주문 확인'}
-          </button>
+            주문 확인
+          </Button>
         )}
 
         {allowedActions.includes('reject') && (
-          <button
+          <Button
+            variant="danger"
             onClick={handleReject}
             disabled={isPending}
-            style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            loading={isPending}
           >
-            {isPending ? '처리 중...' : '반려'}
-          </button>
+            반려
+          </Button>
         )}
 
         {allowedActions.includes('prepareShipment') && (
-          <button
+          <Button
+            variant="secondary"
             onClick={handlePrepareShipment}
             disabled={isPending}
-            style={{ padding: '8px 16px', backgroundColor: '#6610f2', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            loading={isPending}
           >
-            {isPending ? '처리 중...' : '출고 지시'}
-          </button>
+            출고 지시
+          </Button>
         )}
 
         {allowedActions.includes('addShipment') && (
-          <button
+          <Button
+            variant="primary"
             onClick={handleAddShipment}
             disabled={isPending}
-            style={{ padding: '8px 16px', backgroundColor: '#198754', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             송장 등록
-          </button>
+          </Button>
         )}
 
         {allowedActions.includes('cancel') && !showCancelForm && (
-          <button
+          <Button
+            variant="danger"
             onClick={() => setShowCancelForm(true)}
             disabled={isPending}
-            style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
             주문 취소
-          </button>
+          </Button>
         )}
       </div>
 
       {showCancelForm && (
-        <div style={{ marginTop: '16px', padding: '16px', border: '1px solid #eee', borderRadius: '8px' }}>
-          <h3 style={{ marginBottom: '12px' }}>주문 취소</h3>
-          <div style={{ marginBottom: '12px' }}>
-            <label htmlFor="cancelReason" style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
-              취소 사유 <span style={{ color: 'red' }}>*</span>
+        <Card
+          header={
+            <span style={{ fontSize: '15px', fontWeight: 600, color: '#191F28' }}>주문 취소</span>
+          }
+          style={{ marginTop: '16px' }}
+        >
+          <div style={{ marginBottom: '16px' }}>
+            <label
+              htmlFor="cancelReason"
+              style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: 500, color: '#4E5968' }}
+            >
+              취소 사유 <span style={{ color: '#F04452' }}>*</span>
             </label>
             <textarea
               id="cancelReason"
@@ -142,26 +163,37 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               onChange={e => setCancelReason(e.target.value)}
               placeholder="취소 사유를 입력하세요"
               rows={3}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #E5E8EB',
+                borderRadius: '8px',
+                resize: 'vertical',
+                fontSize: '14px',
+                color: '#191F28',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
             />
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button
+            <Button
+              variant="danger"
               onClick={handleCancel}
               disabled={isPending}
-              style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              loading={isPending}
             >
-              {isPending ? '처리 중...' : '취소 확정'}
-            </button>
-            <button
+              취소 확정
+            </Button>
+            <Button
+              variant="secondary"
               onClick={() => { setShowCancelForm(false); setCancelReason(''); setError(null) }}
               disabled={isPending}
-              style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
             >
               돌아가기
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   )

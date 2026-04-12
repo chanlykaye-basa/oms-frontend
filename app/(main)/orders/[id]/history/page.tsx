@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { api, ApiError } from '@/shared/lib/api'
 import type { OrderHistory } from '@/shared/types/api'
 import { ORDER_STATUS_LABELS } from '@/shared/types/api'
+import { PageHeader, Card, Badge, Button, EmptyState } from '@internal/design-system'
+import type { OrderStatus } from '@/shared/types/api'
 
 async function getOrderHistory(orderId: string): Promise<OrderHistory[]> {
   try {
@@ -13,6 +15,20 @@ async function getOrderHistory(orderId: string): Promise<OrderHistory[]> {
   }
 }
 
+const STATUS_BADGE_VARIANT: Record<OrderStatus, 'blue' | 'green' | 'yellow' | 'red' | 'gray' | 'purple' | 'orange' | 'cyan' | 'navy'> = {
+  COLLECTED: 'gray',
+  PENDING_REVIEW: 'yellow',
+  CONFIRMED: 'blue',
+  PREPARING_SHIPMENT: 'purple',
+  SHIPPING: 'cyan',
+  DELIVERED: 'green',
+  DELIVERY_ISSUE: 'red',
+  PURCHASE_CONFIRMED: 'navy',
+  RETURNING: 'orange',
+  RETURNED: 'gray',
+  CANCELLED: 'gray',
+}
+
 export default async function OrderHistoryPage({ params }: { params: { id: string } }) {
   let history: OrderHistory[]
 
@@ -21,58 +37,97 @@ export default async function OrderHistoryPage({ params }: { params: { id: strin
   } catch {
     return (
       <div>
-        <h1>상태 이력</h1>
-        <p style={{ color: 'red' }}>이력을 불러오지 못했습니다.</p>
+        <PageHeader title="상태 이력" />
+        <p style={{ color: '#F04452', fontSize: '14px' }}>이력을 불러오지 못했습니다.</p>
       </div>
     )
   }
 
   return (
     <div style={{ maxWidth: '720px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1>상태 이력</h1>
-        <Link href={`/orders/${params.id}`}>
-          <button style={{ padding: '6px 12px' }}>주문 상세로</button>
-        </Link>
-      </div>
+      <PageHeader
+        title="상태 이력"
+        description="주문 상태 변경 이력을 확인합니다"
+        actions={
+          <Link href={`/orders/${params.id}`}>
+            <Button variant="secondary" size="sm">주문 상세로</Button>
+          </Link>
+        }
+      />
 
       {history.length === 0 ? (
-        <p style={{ color: '#999' }}>이력이 없습니다.</p>
+        <EmptyState title="이력 없음" description="상태 변경 이력이 없습니다." />
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left' }}>
-              <th style={{ padding: '8px' }}>이전 상태</th>
-              <th style={{ padding: '8px' }}>변경 상태</th>
-              <th style={{ padding: '8px' }}>사유</th>
-              <th style={{ padding: '8px' }}>변경일시</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map(entry => (
-              <tr key={entry.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '8px', color: '#666' }}>
-                  {entry.fromStatus ? (ORDER_STATUS_LABELS[entry.fromStatus] ?? entry.fromStatus) : '-'}
-                </td>
-                <td style={{ padding: '8px' }}>
-                  <span style={{
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    backgroundColor: '#0d6efd',
-                    color: 'white',
-                  }}>
-                    {ORDER_STATUS_LABELS[entry.toStatus] ?? entry.toStatus}
-                  </span>
-                </td>
-                <td style={{ padding: '8px', fontSize: '13px', color: '#555' }}>{entry.reason ?? '-'}</td>
-                <td style={{ padding: '8px', fontSize: '13px' }}>
-                  {new Date(entry.createdAt).toLocaleString('ko-KR')}
-                </td>
-              </tr>
+        <Card>
+          <div style={{ position: 'relative' }}>
+            {history.map((entry, index) => (
+              <div
+                key={entry.id}
+                style={{
+                  display: 'flex',
+                  gap: '16px',
+                  paddingBottom: index < history.length - 1 ? '24px' : 0,
+                  position: 'relative',
+                }}
+              >
+                {/* Timeline line */}
+                {index < history.length - 1 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '11px',
+                      top: '24px',
+                      bottom: 0,
+                      width: '2px',
+                      background: '#E5E8EB',
+                    }}
+                  />
+                )}
+
+                {/* Dot */}
+                <div
+                  style={{
+                    flexShrink: 0,
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: '#3182F6',
+                    border: '3px solid #EFF6FF',
+                    marginTop: '2px',
+                    zIndex: 1,
+                  }}
+                />
+
+                {/* Content */}
+                <div style={{ flex: 1, paddingBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                    {entry.fromStatus && (
+                      <>
+                        <Badge variant={STATUS_BADGE_VARIANT[entry.fromStatus]}>
+                          {ORDER_STATUS_LABELS[entry.fromStatus] ?? entry.fromStatus}
+                        </Badge>
+                        <span style={{ color: '#8B95A1', fontSize: '13px' }}>→</span>
+                      </>
+                    )}
+                    <Badge variant={STATUS_BADGE_VARIANT[entry.toStatus]}>
+                      {ORDER_STATUS_LABELS[entry.toStatus] ?? entry.toStatus}
+                    </Badge>
+                  </div>
+
+                  {entry.reason && (
+                    <p style={{ fontSize: '13px', color: '#4E5968', marginBottom: '4px' }}>
+                      사유: {entry.reason}
+                    </p>
+                  )}
+
+                  <time style={{ fontSize: '12px', color: '#8B95A1' }}>
+                    {new Date(entry.createdAt).toLocaleString('ko-KR')}
+                  </time>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </Card>
       )}
     </div>
   )

@@ -1,9 +1,25 @@
 import { api } from '@/shared/lib/api'
 import type { DashboardSummary } from '@/shared/types/api'
 import { ORDER_STATUS_LABELS } from '@/shared/types/api'
+import { Card, PageHeader, Badge } from '@internal/design-system'
+import type { OrderStatus } from '@/shared/types/api'
 
 async function getDashboardSummary(): Promise<DashboardSummary> {
   return api.get<DashboardSummary>('/api/v1/dashboard/summary', { cache: 'no-store' })
+}
+
+const STATUS_BADGE_VARIANT: Record<OrderStatus, 'blue' | 'green' | 'yellow' | 'red' | 'gray' | 'purple' | 'orange' | 'cyan' | 'navy'> = {
+  COLLECTED: 'gray',
+  PENDING_REVIEW: 'yellow',
+  CONFIRMED: 'blue',
+  PREPARING_SHIPMENT: 'purple',
+  SHIPPING: 'cyan',
+  DELIVERED: 'green',
+  DELIVERY_ISSUE: 'red',
+  PURCHASE_CONFIRMED: 'navy',
+  RETURNING: 'orange',
+  RETURNED: 'gray',
+  CANCELLED: 'gray',
 }
 
 export default async function DashboardPage() {
@@ -15,49 +31,64 @@ export default async function DashboardPage() {
     summary = { statusCounts: {}, totalOrders: 0 }
   }
 
-  const statusEntries = Object.entries(ORDER_STATUS_LABELS) as [keyof typeof ORDER_STATUS_LABELS, string][]
+  const statusEntries = Object.entries(ORDER_STATUS_LABELS) as [OrderStatus, string][]
 
   return (
     <div>
-      <h1 style={{ marginBottom: '24px' }}>대시보드</h1>
+      <PageHeader
+        title="대시보드"
+        description="전체 주문 현황을 확인합니다"
+      />
 
-      <section style={{ marginBottom: '32px' }}>
-        <h2 style={{ marginBottom: '16px' }}>전체 주문 현황</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
-          {statusEntries.map(([status, label]) => {
-            const count = summary.statusCounts[status] ?? 0
-            return (
-              <div
-                key={status}
-                style={{
-                  padding: '16px',
-                  border: '1px solid #eee',
-                  borderRadius: '8px',
-                  backgroundColor: '#fafafa',
-                }}
-              >
-                <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>{label}</div>
-                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{count.toLocaleString()}</div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+          gap: '16px',
+          marginBottom: '24px',
+        }}
+      >
+        {statusEntries.map(([status, label]) => {
+          const count = summary.statusCounts[status] ?? 0
+          return (
+            <Card key={status}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Badge variant={STATUS_BADGE_VARIANT[status]}>{label}</Badge>
+                <div style={{ fontSize: '32px', fontWeight: 700, color: '#191F28', lineHeight: 1 }}>
+                  {count.toLocaleString()}
+                </div>
               </div>
-            )
-          })}
-        </div>
-      </section>
+            </Card>
+          )
+        })}
+      </div>
 
-      <section>
-        <div
-          style={{
-            padding: '16px',
-            border: '1px solid #eee',
-            borderRadius: '8px',
-            backgroundColor: '#f0f4ff',
-            display: 'inline-block',
-          }}
-        >
-          <div style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>총 주문 수</div>
-          <div style={{ fontSize: '36px', fontWeight: 'bold' }}>{summary.totalOrders.toLocaleString()}</div>
+      <Card style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: '14px', color: '#3B82F6', fontWeight: 600, marginBottom: '8px' }}>
+              총 주문 수
+            </div>
+            <div style={{ fontSize: '40px', fontWeight: 700, color: '#1D4ED8' }}>
+              {summary.totalOrders.toLocaleString()}
+            </div>
+          </div>
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '16px',
+              background: '#3B82F6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}
+          >
+            📦
+          </div>
         </div>
-      </section>
+      </Card>
     </div>
   )
 }
